@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brummaberg - Household Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .widget {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .widget-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .add-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.2s ease;
+        }
+
+        .add-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .input-group input, .input-group select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .item-content {
+            flex: 1;
+        }
+
+        .item-title {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .item-meta {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #ff5252;
+        }
+
+        .complete-btn {
+            background: #51cf66;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-right: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .complete-btn:hover {
+            background: #40c057;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background: #e9ecef;
+        }
+
+        .calendar-day.has-event {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .calendar-day.today {
+            background: #ff6b6b;
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .calendar-header-day {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            padding: 8px;
+        }
+
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .expense-amount {
+            font-weight: 600;
+            color: #ff6b6b;
+        }
+
+        .total-expenses {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .weather-widget {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .weather-temp {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Brummaberg</h1>
+            <p>Your family's central hub for organizing life together</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Travel Calendar -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">🗓️ Travel Calendar</h3>
+                    <button class="add-btn" onclick="addTravelEvent()">Add Trip</button>
+                </div>
+                <div class="input-group" id="travel-input" style="display: none;">
+                    <input type="text" id="travel-title" placeholder="Trip destination">
+                    <input type="date" id="travel-date">
+                    <button class="add-btn" onclick="saveTravelEvent()">Save</button>
+                </div>
+                <div class="calendar-header">
+                    <div class="calendar-header-day">Sun</div>
+                    <div class="calendar-header-day">Mon</div>
+                    <div class="calendar-header-day">Tue</div>
+                    <div class="calendar-header-day">Wed</div>
+                    <div class="calendar-header-day">Thu</div>
+                    <div class="calendar-header-day">Fri</div>
+                    <div class="calendar-header-day">Sat</div>
+                </div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+                <div id="travel-events"></div>
+            </div>
+
+            <!-- To-Do List -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">✅ To-Do List</h3>
+                    <button class="add-btn" onclick="toggleTodoInput()">Add Task</button>
+                </div>
+                <div class="input-group" id="todo-input" style="display: none;">
+                    <input type="text" id="todo-text" placeholder="What needs to be done?">
+                    <select id="todo-priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                    <button class="add-btn" onclick="addTodo()">Add</button>
+                </div>
+                <div id="todo-list"></div>
+            </div>
+
+            <!-- Shopping Lists -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">🛒 Shopping Lists</h3>
+                    <button class="add-btn" onclick="toggleShoppingInput()">Add Item</button>
+                </div>
+                <div class="input-group" id="shopping-input" style="display: none;">
+                    <input type="text" id="shopping-item" placeholder="Item to buy">
+                    <input type="number" id="shopping-quantity" placeholder="Qty" min="1" value="1">
+                    <select id="shopping-category">
+                        <option value="groceries">Groceries</option>
+                        <option value="household">Household</option>
+                        <option value="personal">Personal</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <button class="add-btn" onclick="addShoppingItem()">Add</button>
+                </div>
+                <div id="shopping-list"></div>
+            </div>
+
+            <!-- Events & Appointments -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">📅 Events & Appointments</h3>
+                    <button class="add-btn" onclick="toggleEventInput()">Add Event</button>
+                </div>
+                <div class="input-group" id="event-input" style="display: none;">
+                    <input type="text" id="event-title" placeholder="Event title">
+                    <input type="datetime-local" id="event-datetime">
+                    <button class="add-btn" onclick="addEvent()">Add</button>
+                </div>
+                <div id="events-list"></div>
+            </div>
+
+            <!-- Budget Tracker -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">💰 Budget Tracker</h3>
+                    <button class="add-btn" onclick="toggleExpenseInput()">Add Expense</button>
+                </div>
+                <div class="input-group" id="expense-input" style="display: none;">
+                    <input type="text" id="expense-description" placeholder="What did you buy?">
+                    <input type="number" id="expense-amount" placeholder="Amount" step="0.01">
+                    <select id="expense-category">
+                        <option value="food">Food</option>
+                        <option value="transport">Transport</option>
+                        <option value="utilities">Utilities</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <button class="add-btn" onclick="addExpense()">Add</button>
+                </div>
+                <div id="expenses-list"></div>
+                <div class="total-expenses" id="total-expenses">Total: $0.00</div>
+            </div>
+
+            <!-- Weather Widget -->
+            <div class="widget">
+                <div class="weather-widget">
+                    <h3 class="widget-title">🌤️ Weather</h3>
+                    <div class="weather-temp">22°C</div>
+                    <div>Partly Cloudy</div>
+                    <div style="margin-top: 10px; font-size: 0.9rem;">
+                        Today: 18°C - 25°C
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shared Notes -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">📝 Shared Notes</h3>
+                    <button class="add-btn" onclick="saveNotes()">Save</button>
+                </div>
+                <textarea class="notes-textarea" id="shared-notes" placeholder="Write shared notes, reminders, or thoughts here..."></textarea>
+            </div>
+
+            <!-- Household Chores -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">🧹 Household Chores</h3>
+                    <button class="add-btn" onclick="toggleChoreInput()">Add Chore</button>
+                </div>
+                <div class="input-group" id="chore-input" style="display: none;">
+                    <input type="text" id="chore-title" placeholder="Chore description">
+                    <select id="chore-assignee">
+                        <option value="Partner 1">Partner 1</option>
+                        <option value="Partner 2">Partner 2</option>
+                        <option value="Both">Both</option>
+                    </select>
+                    <input type="date" id="chore-due">
+                    <button class="add-btn" onclick="addChore()">Add</button>
+                </div>
+                <div id="chores-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let data = {
+            todos: [],
+            shopping: [],
+            events: [],
+            expenses: [],
+            travel: [],
+            chores: [],
+            notes: ''
+        };
+
+        // Initialize dashboard
+        function init() {
+            loadData();
+            renderCalendar();
+            renderTodos();
+            renderShopping();
+            renderEvents();
+            renderExpenses();
+            renderTravel();
+            renderChores();
+            loadNotes();
+        }
+
+        // Data persistence
+        function saveData() {
+            // In a real app, this would save to a backend
+            console.log('Data saved:', data);
+        }
+
+        function loadData() {
+            // In a real app, this would load from a backend
+            console.log('Data loaded');
+        }
+
+        // Calendar functionality
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            grid.innerHTML = '';
+            
+            // Empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                grid.appendChild(emptyDay);
+            }
+            
+            // Days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                
+                if (day === today.getDate()) {
+                    dayElement.classList.add('today');
+                }
+                
+                // Check if day has travel events
+                const dayStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                if (data.travel.some(trip => trip.date === dayStr)) {
+                    dayElement.classList.add('has-event');
+                }
+                
+                grid.appendChild(dayElement);
+            }
+        }
+
+        // Travel functionality
+        function addTravelEvent() {
+            const input = document.getElementById('travel-input');
+            input.style.display = input.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function saveTravelEvent() {
+            const title = document.getElementById('travel-title').value;
+            const date = document.getElementById('travel-date').value;
+            
+            if (title && date) {
+                data.travel.push({
+                    id: Date.now(),
+                    title,
+                    date
+                });
+                
+                document.getElementById('travel-title').value = '';
+                document.getElementById('travel-date').value = '';
+                document.getElementById('travel-input').style.display = 'none';
+                
+                renderTravel();
+                renderCalendar();
+                saveData();
+            }
+        }
+
+        function renderTravel() {
+            const container = document.getElementById('travel-events');
+            container.innerHTML = data.travel.map(trip => `
+                <div class="item">
+                    <div class="item-content">
+                        <div class="item-title">${trip.title}</div>
+                        <div class="item-meta">${trip.date}</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteTravel(${trip.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteTravel(id) {
+            data.travel = data.travel.filter(trip => trip.id !== id);
+            renderTravel();
+            renderCalendar();
+            saveData();
+        }
+
+        // Todo functionality
+        function toggleTodoInput() {
+            const input = document.getElementById('todo-input');
+            input.style.display = input.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function addTodo() {
+            const text = document.getElementById('todo-text').value;
+            const priority = document.getElementById('todo-priority').value;
+            
+            if (text) {
+                data.todos.push({
+                    id: Date.now(),
+                    text,
+                    priority,
+                    completed: false,
+                    createdAt: new Date().toLocaleDateString()
+                });
+                
+                document.getElementById('todo-text').value = '';
+                document.getElementById('todo-input').style.display = 'none';
+                renderTodos();
+                saveData();
+            }
+        }
+
+        function renderTodos() {
+            const container = document.getElementById('todo-list');
+            container.innerHTML = data.todos.map(todo => `
+                <div class="item ${todo.completed ? 'completed' : ''}">
+                    <div class="item-content">
+                        <div class="item-title">${todo.text}</div>
+                        <div class="item-meta">Priority: ${todo.priority} | Created: ${todo.createdAt}</div>
+                    </div>
+                    <div>
+                        ${!todo.completed ? `<button class="complete-btn" onclick="completeTodo(${todo.id})">Done</button>` : ''}
+                        <button class="delete-btn" onclick="deleteTodo(${todo.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function completeTodo(id) {
+            const todo = data.todos.find(t => t.id === id);
+            if (todo) todo.completed = true;
+            renderTodos();
+            saveData();
+        }
+
+        function deleteTodo(id) {
+            data.todos = data.todos.filter(todo => todo.id !== id);
+            renderTodos();
+            saveData();
+        }
+
+        // Shopping functionality
+        function toggleShoppingInput() {
+            const input = document.getElementById('shopping-input');
+            input.style.display = input.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function addShoppingItem() {
+            const item = document.getElementById('shopping-item').value;
+            const quantity = document.getElementById('shopping-quantity').value;
+            const category = document.getElementById('shopping-category').value;
+            
+            if (item) {
+                data.shopping.push({
+                    id: Date.now(),
+                    item,
+                    quantity: parseInt(quantity),
+                    category,
+                    bought: false
+                });
+                
+                document.getElementById('shopping-item').value = '';
+                document.getElementById('shopping-quantity').value = '1';
+                document.getElementById('shopping-input').style.display = 'none';
+                renderShopping();
+                saveData();
+            }
+        }
+
+        function renderShopping() {
+            const container = document.getElementById('shopping-list');
+            container.innerHTML = data.shopping.map(item => `
+                <div class="item ${item.bought ? 'completed' : ''}">
+                    <div class="item-content">
+                        <div class="item-title">${item.item} (${item.quantity})</div>
+                        <div class="item-meta">Category: ${item.category}</div>
+                    </div>
+                    <div>
+                        ${!item.bought ? `<button class="complete-btn" onclick="buyItem(${item.id})">Bought</button>` : ''}
+                        <button class="delete-btn" onclick="deleteShoppingItem(${item.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function buyItem(id) {
+            const item = data.shopping.find(s => s.id === id);
+            if (item) item.bought = true;
+            renderShopping();
+            saveData();
+        }
+
+        function deleteShoppingItem(id) {
+            data.shopping = data.shopping.filter(item => item.id !== id);
+            renderShopping();
+            saveData();
+        }
+
+        // Events functionality
+        function toggleEventInput() {
+            const input = document.getElementById('event-input');
+            input.style.display = input.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function addEvent() {
+            const title = document.getElementById('event-title').value;
+            const datetime = document.getElementById('event-datetime').value;
+            
+            if (title && datetime) {
+                data.events.push({
+                    id: Date.now(),
+                    title,
+                    datetime,
+                    date: new Date(datetime).toLocaleDateString(),
+                    time: new Date(datetime).toLocaleTimeString()
+                });
+                
+                document.getElementById('event-title').value = '';
+                document.getElementById('event-datetime').value = '';
+                document.getElementById('event-input').style.display = 'none';
+                renderEvents();
+                saveData();
+            }
+        }
+
+        function renderEvents() {
+            const container = document.getElementById('events-list');
+            const sortedEvents = data.events.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+            
+            container.innerHTML = sortedEvents.map(event => `
+                <div class="item">
+                    <div class="item-content">
+                        <div class="item-title">${event.title}</div>
+                        <div class="item-meta">${event.date} at ${event.time}</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteEvent(${event.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteEvent(id) {
+            data.events = data.events.filter(event => event.id !== id);
+            renderEvents();
+            saveData();
+        }
+
+        // Expenses functionality
+        function toggleExpenseInput() {
+            const input = document.getElementById('expense-input');
+            input.style.display = input.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function addExpense() {
+            const description = document.getElementById('expense-description').value;
+            const amount = parseFloat(document.getElementById('expense-amount').value);
+            const category = document.getElementById('expense-category').value;
+            
+            if (description && amount) {
+                data.expenses.push({
+                    id: Date.now(),
+                    description,
+                    amount,
+                    category,
+                    date: new Date().toLocaleDateString()
+                });
+                
+                document.getElementById('expense-description').value = '';
+                document.getElementById('expense-amount').value = '';
+                document.getElementById('expense-input').style.display = 'none';
+                renderExpenses();
+                saveData();
+            }
+        }
+
+        function renderExpenses() {
+            const container = document.getElementById('expenses-list');
+            const total = data.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            
+            container.innerHTML = data.expenses.map(expense => `
+                <div class="expense-item">
+                    <div>
+                        <div class="item-title">${expense.description}</div>
+                        <div class="item-meta">${expense.category} | ${expense.date}</div>
+                    </div>
+                    <div>
+                        <span class="expense-amount">$${expense.amount.toFixed(2)}</span>
+                        <button class="delete-btn" onclick="deleteExpense(${expense.id})" style="margin-left: 10px;">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('total-expenses').textContent = `Total: $${total.toFixed(2)}`;
+        }
+
+        function deleteExpense(id) {
+            data.expenses = data.expenses.filter(expense => expense.id !== id);
+            renderExpenses();
+            saveData();
+        }
+
+        // Chores functionality
+        function toggleChoreInput() {
+            const input = document.getElementById('chore-input');
+            input.style.display = input.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function addChore() {
+            const title = document.getElementById('chore-title').value;
+            const assignee = document.getElementById('chore-assignee').value;
+            const due = document.getElementById('chore-due').value;
+            
+            if (title && assignee) {
+                data.chores.push({
+                    id: Date.now(),
+                    title,
+                    assignee,
+                    due,
+                    completed: false
+                });
+                
+                document.getElementById('chore-title').value = '';
+                document.getElementById('chore-due').value = '';
+                document.getElementById('chore-input').style.display = 'none';
+                renderChores();
+                saveData();
+            }
+        }
+
+        function renderChores() {
+            const container = document.getElementById('chores-list');
+            container.innerHTML = data.chores.map(chore => `
+                <div class="item ${chore.completed ? 'completed' : ''}">
+                    <div class="item-content">
+                        <div class="item-title">${chore.title}</div>
+                        <div class="item-meta">Assigned to: ${chore.assignee} ${chore.due ? '| Due: ' + chore.due : ''}</div>
+                    </div>
+                    <div>
+                        ${!chore.completed ? `<button class="complete-btn" onclick="completeChore(${chore.id})">Done</button>` : ''}
+                        <button class="delete-btn" onclick="deleteChore(${chore.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function completeChore(id) {
+            const chore = data.chores.find(c => c.id === id);
+            if (chore) chore.completed = true;
+            renderChores();
+            saveData();
+        }
+
+        function deleteChore(id) {
+            data.chores = data.chores.filter(chore => chore.id !== id);
+            renderChores();
+            saveData();
+        }
+
+        // Notes functionality
+        function saveNotes() {
+            data.notes = document.getElementById('shared-notes').value;
+            saveData();
+            
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Saved!';
+            btn.style.background = '#51cf66';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 1000);
+        }
+
+        function loadNotes() {
+            document.getElementById('shared-notes').value = data.notes;
+        }
+
+        // Initialize when page loads
+        init();
+    </script>
+</body>
+</html>
